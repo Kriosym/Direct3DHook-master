@@ -24,10 +24,10 @@ namespace TestScreenshot
 {
     public partial class form2JT : Form
     {
-        
+        public CaptureInterface CaptureInterface { get; set; }
+
         public BackgroundWorker b1 = new BackgroundWorker();
-        delegate void SetTextCallback(Control ctrl, string text);        
-        public static int currentTextTimerValue;        
+        delegate void SetTextCallback(Control ctrl, string text);          
             
         private void form2JT_Load(object sender, EventArgs e)
         {
@@ -39,8 +39,9 @@ namespace TestScreenshot
             b1.WorkerSupportsCancellation = true;
         }
        
-        public form2JT()
+        public form2JT(CaptureInterface captureInterface)
         {
+            this.CaptureInterface = captureInterface;
             this.StartPosition = FormStartPosition.CenterScreen;
             InitializeComponent();
         }
@@ -91,14 +92,12 @@ namespace TestScreenshot
 
         void b1_ProgressChanged(object sender, ProgressChangedEventArgs b1)
         {
-            currentTextTimerValue = b1.ProgressPercentage;
-            CaptureConfig cc = new CaptureConfig() { TestThisShit = form2JT.currentTextTimerValue };   
+            this.CaptureInterface.DisplayInGameText(b1.ProgressPercentage.ToString());
             SetText(labelTimeText, b1.ProgressPercentage.ToString());            
         }
 
         void b1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs b1)
         {
-            currentTextTimerValue=300;
             labelTimeText.Text = "300";
         }     
 

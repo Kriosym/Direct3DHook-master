@@ -373,7 +373,7 @@ namespace Capture.Hook
                     #region Draw frame rate
 
                     // TODO: font needs to be created and then reused, not created each frame!
-                    using (SharpDX.Direct3D9.Font font = new SharpDX.Direct3D9.Font(device, new FontDescription()
+                    using (var font = new SharpDX.Direct3D9.Font(device, new FontDescription()
                                     {
                                         Height = 18,
                                         FaceName = "Arial",
@@ -388,10 +388,16 @@ namespace Capture.Hook
                                     }))
                     {                       
 
+                        // Display always...
                         if (this.Config.TestThisShit != 0)
-                        {                            
-                            font.DrawText(null, this.Config.TestThisShit.ToString(), 5, 5, SharpDX.Color.Red);
-                            font.DrawText(null, this.Config.TestThisShit.ToString(), 35, 5, SharpDX.Color.Blue);
+                        {
+                           font.DrawText(null, "Timer 1", 5, 10, SharpDX.Color.Lime);
+                        }
+
+                        // Display on Timer...
+                        if (this.TextDisplay != null && this.TextDisplay.Display)
+                        {
+                            font.DrawText(null, this.TextDisplay.Text, 5, 25, new SharpDX.ColorBGRA(255, 0, 0, (byte)Math.Round((Math.Abs(1.0f - TextDisplay.Remaining) * 255f))));
                         }
 
                         /*                          
@@ -399,7 +405,6 @@ namespace Capture.Hook
                         {                            
                            font.DrawText(null, String.Format("{0:N0} fps", this.FPS.GetFPS()), 5, 5, SharpDX.Color.Red);
                         }
-
                         if (this.TextDisplay != null && this.TextDisplay.Display)
                         {                            
                            font.DrawText(null, this.TextDisplay.Text, 5, 25, new SharpDX.ColorBGRA(255, 0, 0, (byte)Math.Round((Math.Abs(1.0f - TextDisplay.Remaining) * 255f))));

@@ -98,42 +98,9 @@ namespace TestScreenshot
                     continue;
                 }
 
-                Direct3DVersion direct3DVersion = Direct3DVersion.Direct3D10;
-
-                if (rbDirect3D11.Checked)
-                {
-                    direct3DVersion = Direct3DVersion.Direct3D11;
-                }
-                else if (rbDirect3D10_1.Checked)
-                {
-                    direct3DVersion = Direct3DVersion.Direct3D10_1;
-                }
-                else if (rbDirect3D10.Checked)
-                {
-                    direct3DVersion = Direct3DVersion.Direct3D10;
-                }
-                else if (rbDirect3D9.Checked)
-                {
-                    direct3DVersion = Direct3DVersion.Direct3D9;
-                }
-                else if (rbAutodetect.Checked)
-                {
-                    direct3DVersion = Direct3DVersion.AutoDetect;
-                }                
-
-                CaptureConfig cc = new CaptureConfig()
-                {
-                    Direct3DVersion = direct3DVersion,
-                    ShowOverlay = cbDrawOverlay.Checked,
-                    TestThisShit = form2JT.currentTextTimerValue
-                };
 
                 processId = process.Id;
-                _process = process;
-
-                var captureInterface = new CaptureInterface();
-                captureInterface.RemoteMessage += new MessageReceivedEvent(CaptureInterface_RemoteMessage);
-                _captureProcess = new CaptureProcess(process, cc, captureInterface);
+                CreateCaptureProcess(process);
 
                 break;
             }
@@ -150,12 +117,61 @@ namespace TestScreenshot
             }
         }
 
+        private void CreateCaptureProcess(Process process)
+        {
+            _process = process;
+
+            Direct3DVersion direct3DVersion = Direct3DVersion.Direct3D10;
+
+            if (rbDirect3D11.Checked)
+            {
+                direct3DVersion = Direct3DVersion.Direct3D11;
+            }
+            else if (rbDirect3D10_1.Checked)
+            {
+                direct3DVersion = Direct3DVersion.Direct3D10_1;
+            }
+            else if (rbDirect3D10.Checked)
+            {
+                direct3DVersion = Direct3DVersion.Direct3D10;
+            }
+            else if (rbDirect3D9.Checked)
+            {
+                direct3DVersion = Direct3DVersion.Direct3D9;
+            }
+            else if (rbAutodetect.Checked)
+            {
+                direct3DVersion = Direct3DVersion.AutoDetect;
+            }
+
+            var cc = new CaptureConfig
+                      {
+                          Direct3DVersion = direct3DVersion,
+                          ShowOverlay = cbDrawOverlay.Checked,
+                          TestThisShit = 300
+                      };
+
+            var captureInterface = new CaptureInterface();
+
+            if (frm2 != null)
+            {
+                frm2.Close();
+                frm2.Dispose();
+            }
+
+            frm2 = new form2JT(captureInterface);
+            
+            captureInterface.RemoteMessage += CaptureInterface_RemoteMessage;
+            _captureProcess = new CaptureProcess(process, cc, captureInterface);
+        }
+
         /// <summary>
         /// Display messages from the target process
         /// </summary>
         /// <param name="message"></param>
         void CaptureInterface_RemoteMessage(MessageReceivedEventArgs message)
         {
+            
             txtDebugLog.Invoke(new MethodInvoker(delegate()
                 {
                     txtDebugLog.Text = String.Format("{0}\r\n{1}", message, txtDebugLog.Text);
@@ -179,6 +195,7 @@ namespace TestScreenshot
 
         DateTime start;
         DateTime end;
+        private form2JT frm2;
 
         private void btnCapture_Click(object sender, EventArgs e)
         {
@@ -263,7 +280,12 @@ namespace TestScreenshot
 
         private void button1_Click(object sender, EventArgs e)
         {
-            form2JT frm2 = new form2JT();
+            if (frm2 == null)
+            {
+                MessageBox.Show("Inject First");
+                return;
+            }
+
             frm2.Show();
         }
     }
