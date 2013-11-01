@@ -124,8 +124,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="baronbutton.jpg" />
     <Content Include="EasyHook.dll" />
+    <EmbeddedResource Include="Resources\baronbutton.jpg" />
     <Content Include="sharpdx_direct3d11_effects_x64.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

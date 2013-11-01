@@ -3,13 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 //using SlimDX.Direct3D9;
+using Capture.Hook.Common;
+using Capture.Properties;
 using EasyHook;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Threading;
-using System.Drawing;
 using Capture.Interface;
+using SharpDX;
+using SharpDX.Direct3D10;
 using SharpDX.Direct3D9;
+using Device = SharpDX.Direct3D9.Device;
+using FontCharacterSet = SharpDX.Direct3D9.FontCharacterSet;
+using FontDescription = SharpDX.Direct3D9.FontDescription;
+using FontPitchAndFamily = SharpDX.Direct3D9.FontPitchAndFamily;
+using FontPrecision = SharpDX.Direct3D9.FontPrecision;
+using FontQuality = SharpDX.Direct3D9.FontQuality;
+using FontWeight = SharpDX.Direct3D9.FontWeight;
+using ImageFileFormat = SharpDX.Direct3D9.ImageFileFormat;
+using INVOKEKIND = System.Runtime.InteropServices.ComTypes.INVOKEKIND;
+using Rectangle = System.Drawing.Rectangle;
+using Sprite = SharpDX.Direct3D9.Sprite;
 
 namespace Capture.Hook
 {
@@ -373,6 +387,15 @@ namespace Capture.Hook
                     #region Draw frame rate
 
                     // TODO: font needs to be created and then reused, not created each frame!
+                    
+                    
+                    /* Messing with Textures and Sprites to get a picture of baron overlayed along with the text...
+                    Sprite MySprite = new SharpDX.Direct3D9.Sprite(device);
+                    Texture tezture = Texture.FromFile(device,
+                        @"C:\Users\WS5070 Administrator\Documents\GitHub\Direct3DHook-master\Capture\Resources\baronbutton.jpg",
+                        Usage.RenderTarget, Pool.Managed);
+                    */
+
                     using (var font = new SharpDX.Direct3D9.Font(device, new FontDescription()
                                     {
                                         Height = 18,
@@ -391,7 +414,8 @@ namespace Capture.Hook
                         // Display always...
                         if (this.Config.TestThisShit != 0)
                         {
-                           font.DrawText(null, "Timer 1", 5, 10, SharpDX.Color.Lime);
+                            // MySprite.Draw(tezture, new SharpDX.ColorBGRA(255, 0, 0, (byte)Math.Round((Math.Abs(1.0f - TextDisplay.Remaining) * 255f))));
+                            font.DrawText(null, "Timer 1", 5, 10, SharpDX.Color.Lime);
                         }
 
                         // Display on Timer...
