@@ -122,6 +122,7 @@
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(98, 20);
             this.textBox1.TabIndex = 6;
+            this.textBox1.Text = "mpc-hc";
             // 
             // label1
             // 
@@ -153,11 +154,12 @@
             // label4
             // 
             this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Quartz MS", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.Location = new System.Drawing.Point(3, 247);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(38, 13);
+            this.label4.Size = new System.Drawing.Size(53, 19);
             this.label4.TabIndex = 10;
-            this.label4.Text = "Height";
+            this.label4.Text = "01:55";
             // 
             // txtCaptureX
             // 
@@ -242,10 +244,12 @@
             // rbDirect3D9
             // 
             this.rbDirect3D9.AutoSize = true;
+            this.rbDirect3D9.Checked = true;
             this.rbDirect3D9.Location = new System.Drawing.Point(93, 309);
             this.rbDirect3D9.Name = "rbDirect3D9";
             this.rbDirect3D9.Size = new System.Drawing.Size(76, 17);
             this.rbDirect3D9.TabIndex = 21;
+            this.rbDirect3D9.TabStop = true;
             this.rbDirect3D9.Text = "Direct3D 9";
             this.rbDirect3D9.UseVisualStyleBackColor = true;
             // 
@@ -284,12 +288,10 @@
             // rbAutodetect
             // 
             this.rbAutodetect.AutoSize = true;
-            this.rbAutodetect.Checked = true;
             this.rbAutodetect.Location = new System.Drawing.Point(10, 309);
             this.rbAutodetect.Name = "rbAutodetect";
             this.rbAutodetect.Size = new System.Drawing.Size(77, 17);
             this.rbAutodetect.TabIndex = 20;
-            this.rbAutodetect.TabStop = true;
             this.rbAutodetect.Text = "Autodetect";
             this.rbAutodetect.UseVisualStyleBackColor = true;
             // 

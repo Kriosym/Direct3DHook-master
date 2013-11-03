@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -92,14 +93,17 @@ namespace TestScreenshot
 
         void b1_ProgressChanged(object sender, ProgressChangedEventArgs b1)
         {
-            this.CaptureInterface.DisplayInGameText(b1.ProgressPercentage.ToString());
-            SetText(labelTimeText, b1.ProgressPercentage.ToString());            
+            TimeSpan t = TimeSpan.FromSeconds(b1.ProgressPercentage);
+            string b1TimeFormatted = string.Format("{1:D2}:{2:D2}", t.Hours, t.Minutes, t.Seconds, t.Milliseconds);
+            SetText(labelTimeText, b1TimeFormatted.ToString());
+            this.CaptureInterface.DisplayInGameText(b1TimeFormatted.ToString());
         }
 
         void b1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs b1)
         {
             labelTimeText.Text = "300";
         }     
+        
 
     }
 }

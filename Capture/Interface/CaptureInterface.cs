@@ -239,7 +239,8 @@ namespace Capture.Interface
         /// <param name="text"></param>
         public void DisplayInGameText(string text)
         {
-            DisplayInGameText(text, new TimeSpan(0, 0, 5));
+            // Krio Comments - How long display is...
+            DisplayInGameText(text, new TimeSpan(0, 0, 1));
         }
 
         /// <summary>

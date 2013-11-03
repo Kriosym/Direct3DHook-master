@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
-//using SlimDX.Direct3D9;
+using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 using Capture.Hook.Common;
 using Capture.Properties;
 using EasyHook;
@@ -11,7 +14,6 @@ using System.IO;
 using System.Threading;
 using Capture.Interface;
 using SharpDX;
-using SharpDX.Direct3D10;
 using SharpDX.Direct3D9;
 using Device = SharpDX.Direct3D9.Device;
 using FontCharacterSet = SharpDX.Direct3D9.FontCharacterSet;
@@ -21,9 +23,9 @@ using FontPrecision = SharpDX.Direct3D9.FontPrecision;
 using FontQuality = SharpDX.Direct3D9.FontQuality;
 using FontWeight = SharpDX.Direct3D9.FontWeight;
 using ImageFileFormat = SharpDX.Direct3D9.ImageFileFormat;
-using INVOKEKIND = System.Runtime.InteropServices.ComTypes.INVOKEKIND;
 using Rectangle = System.Drawing.Rectangle;
 using Sprite = SharpDX.Direct3D9.Sprite;
+
 
 namespace Capture.Hook
 {
@@ -39,7 +41,7 @@ namespace Capture.Hook
         LocalHook Direct3DDevice_PresentHook = null;
         LocalHook Direct3DDeviceEx_PresentExHook = null;
         object _lockRenderTarget = new object();
-        Surface _renderTarget;
+        Surface _renderTarget;        
 
         protected override string HookName
         {
@@ -53,6 +55,9 @@ namespace Capture.Hook
         const int D3D9_DEVICE_METHOD_COUNT = 119;
         const int D3D9Ex_DEVICE_METHOD_COUNT = 15;
         bool _supportsDirect3D9Ex = false;
+        
+        public SharpDX.Direct3D9.Texture mytexStream;
+
         public override void Hook()
         {
             this.DebugMessage("Hook: Begin");
@@ -181,7 +186,7 @@ namespace Capture.Hook
             }
             base.Dispose(disposing);
         }
-
+        
         /// <summary>
         /// The IDirect3DDevice9.EndScene function definition
         /// </summary>
@@ -248,8 +253,8 @@ namespace Capture.Hook
         {
             _isUsingPresent = true;
             DeviceEx device = (DeviceEx)devicePtr;
-
-            DoCaptureRenderTarget(device, "PresentEx");
+            
+            DoCaptureRenderTarget(device, "PresentEx");            
 
             //    Region region = new Region(pDirtyRegion);
             if (pSourceRect == null || *pSourceRect == SharpDX.Rectangle.Empty)
@@ -306,8 +311,9 @@ namespace Capture.Hook
 
             if (!_isUsingPresent)
                 DoCaptureRenderTarget(device, "EndSceneHook");
-
+            
             device.EndScene();
+
             return SharpDX.Result.Ok.Code;
         }
         /// <summary>
@@ -316,11 +322,10 @@ namespace Capture.Hook
         /// <param name="device"></param>
         void DoCaptureRenderTarget(Device device, string hook)
         {
-            this.Frame();
-
             try
             {
-                    #region Screenshot Request
+                #region Screenshot Request
+
                 // Single frame capture request
                 if (this.Request != null)
                 {
@@ -350,12 +355,15 @@ namespace Capture.Hook
                                 // Create offscreen surface to use as copy of render target data
                                 using (SwapChain sc = device.GetSwapChain(0))
                                 {
-                                    _renderTarget = Surface.CreateOffscreenPlain(device, width, height, sc.PresentParameters.BackBufferFormat, Pool.SystemMemory);
+                                    _renderTarget = Surface.CreateOffscreenPlain(device, width, height,
+                                        sc.PresentParameters.BackBufferFormat, Pool.SystemMemory);
                                 }
                             }
 
                             // Create our resolved surface (resizing if necessary and to resolve any multi-sampling)
-                            using (Surface resolvedSurface = Surface.CreateRenderTarget(device, width, height, renderTargetTemp.Description.Format, MultisampleType.None, 0, false))
+                            using (
+                                Surface resolvedSurface = Surface.CreateRenderTarget(device, width, height,
+                                    renderTargetTemp.Description.Format, MultisampleType.None, 0, false))
                             {
                                 // Resize from Render Surface to resolvedSurface
                                 device.StretchRectangle(renderTargetTemp, resolvedSurface, TextureFilter.None);
@@ -384,47 +392,58 @@ namespace Capture.Hook
 
                 if (this.Config.ShowOverlay)
                 {
+
+                    // SHIT
+                    this.Frame();
+
                     #region Draw frame rate
 
-                    // TODO: font needs to be created and then reused, not created each frame!
-                    
-                    
-                    /* Messing with Textures and Sprites to get a picture of baron overlayed along with the text...
-                    Sprite MySprite = new SharpDX.Direct3D9.Sprite(device);
-                    Texture tezture = Texture.FromFile(device,
-                        @"C:\Users\WS5070 Administrator\Documents\GitHub\Direct3DHook-master\Capture\Resources\baronbutton.jpg",
-                        Usage.RenderTarget, Pool.Managed);
-                    */
+                    // TODO: font needs to be created and then reused, not created each frame!                               
 
                     using (var font = new SharpDX.Direct3D9.Font(device, new FontDescription()
-                                    {
-                                        Height = 18,
-                                        FaceName = "Arial",
-                                        Italic = false,
-                                        Width = 0,
-                                        MipLevels = 1,
-                                        CharacterSet = FontCharacterSet.Default,
-                                        OutputPrecision = FontPrecision.Default,
-                                        Quality = FontQuality.Antialiased,
-                                        PitchAndFamily = FontPitchAndFamily.Default | FontPitchAndFamily.DontCare,
-                                        Weight = FontWeight.Bold
-                                    }))
-                    {                       
+                    {
+                        Height = 26,
+                        FaceName = "Quartz MS",
+                        Italic = false,
+                        Width = 0,
+                        MipLevels = 1,
+                        CharacterSet = FontCharacterSet.Default,
+                        OutputPrecision = FontPrecision.Default,
+                        Quality = FontQuality.Antialiased,
+                        PitchAndFamily = FontPitchAndFamily.Default | FontPitchAndFamily.DontCare,
+                        Weight = FontWeight.Normal
+                    }))
+                    {
+
+                    // Make a Texture from a file...
+                    using (FileStream myFileStream = new FileStream(@"C:\Users\Krio\Documents\GitHub\Direct3DHook-master\Capture\Resources\baronbutton.png", System.IO.FileMode.Open))
+                    { mytexStream = SharpDX.Direct3D9.Texture.FromStream(device, myFileStream); }
+
+                        Sprite spritezor = new SharpDX.Direct3D9.Sprite(device);
+                        spritezor.Begin(SharpDX.Direct3D9.SpriteFlags.None);
+                        var baronPos = new Vector3(1476, 812, 0);
+                        spritezor.Draw(mytexStream, new ColorBGRA(0xffffffff), null, null, baronPos);
 
                         // Display always...
                         if (this.Config.TestThisShit != 0)
                         {
-                            // MySprite.Draw(tezture, new SharpDX.ColorBGRA(255, 0, 0, (byte)Math.Round((Math.Abs(1.0f - TextDisplay.Remaining) * 255f))));
-                            font.DrawText(null, "Timer 1", 5, 10, SharpDX.Color.Lime);
+                            // Draw sprite...
+                            spritezor.End();
+                            spritezor.Dispose();
+                            
+                            // Oritinal Text before sprites worked...
+                            //font.DrawText(null, "Timer 1", 5, 10, SharpDX.Color.Lime);
                         }
 
                         // Display on Timer...
                         if (this.TextDisplay != null && this.TextDisplay.Display)
                         {
-                            font.DrawText(null, this.TextDisplay.Text, 5, 25, new SharpDX.ColorBGRA(255, 0, 0, (byte)Math.Round((Math.Abs(1.0f - TextDisplay.Remaining) * 255f))));
+                            font.DrawText(null, this.TextDisplay.Text, 1477, 870, new SharpDX.ColorBGRA(255, 0, 0, 255));
+                            // Alternate font for timers pulsed with alpha fading between ticks...
+                            // font.DrawText(null, this.TextDisplay.Text, 5, 25, new SharpDX.ColorBGRA(255, 0, 0, (byte)Math.Round((Math.Abs(1.0f - TextDisplay.Remaining) * 255f))));
                         }
 
-                        /*                          
+                        /* DXHookD3D9 Original statements to draw the FPS...  
                         if (this.FPS.GetFPS() >= 1)
                         {                            
                            font.DrawText(null, String.Format("{0:N0} fps", this.FPS.GetFPS()), 5, 5, SharpDX.Color.Red);
@@ -433,12 +452,13 @@ namespace Capture.Hook
                         {                            
                            font.DrawText(null, this.TextDisplay.Text, 5, 25, new SharpDX.ColorBGRA(255, 0, 0, (byte)Math.Round((Math.Abs(1.0f - TextDisplay.Remaining) * 255f))));
                         }
-                        */                        
+                        */
                     }
 
                     #endregion
                 }
             }
+            
             catch (Exception e)
             {
                 DebugMessage(e.ToString());
