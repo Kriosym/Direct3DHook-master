@@ -416,7 +416,7 @@ namespace Capture.Hook
                     {
 
                     // Make a Texture from a file...
-                    using (FileStream myFileStream = new FileStream(@"C:\Users\Krio\Documents\GitHub\Direct3DHook-master\Capture\Resources\baronbutton.png", System.IO.FileMode.Open))
+                    using (FileStream myFileStream = new FileStream(@"baronbutton.png", System.IO.FileMode.Open))
                     { mytexStream = SharpDX.Direct3D9.Texture.FromStream(device, myFileStream); }
 
                         Sprite spritezor = new SharpDX.Direct3D9.Sprite(device);
